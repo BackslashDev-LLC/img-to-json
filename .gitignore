@@ -403,3 +403,5 @@ Docker/azurite/
 
 # Binaries
 *.tar.xz
+
+demo/appsettings.local.json
