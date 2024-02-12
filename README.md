@@ -12,7 +12,7 @@ For full information about OpenAI's Vision Service, review [their documentation]
 
 ## Demo
 
-This repository contains a Command Line demonstration of the library for interested parties. Simply clone this repository and open the solution file at the root. The demo parses 3 resume images into a structured result. More detail about the demo is available in [the project itself](https://github.com/backslashdev-llc/img-to-json/demo).
+This repository contains a Command Line demonstration of the library for interested parties. Simply clone this repository and open the solution file at the root. The demo parses 3 resume images into a structured result. More detail about the demo is available in [the project itself](https://github.com/BackslashDev-LLC/img-to-json/tree/main/demo).
 
 ## Usage
 
@@ -139,7 +139,7 @@ The service will respond with an object of type `VisionResult<T>`. You can check
 
 ## License
 
-This repository and the associated NuGet packages are licensed under the terms of the GPL V3 license. Full details can be found in [the license file](https://github.com/backslashdev-llc/img-to-json/LICENSE.md).
+This repository and the associated NuGet packages are licensed under the terms of the GPL V3 license. Full details can be found in [the license file](https://github.com/BackslashDev-LLC/img-to-json/blob/main/LICENSE.md).
 
 ## Contribution
 
