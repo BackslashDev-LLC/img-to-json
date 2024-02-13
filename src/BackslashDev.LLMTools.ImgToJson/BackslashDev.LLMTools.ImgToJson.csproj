@@ -5,11 +5,11 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>BackslashDev.LLMTools.ImgToJson</PackageId>
-        <Version>0.0.1</Version>
+        <Version>0.1.0</Version>
         <Description>Easily Convert Images to Structured JSON Using OpenAI GPT4 Vision</Description>
         <Authors>John Ackerman</Authors>
         <Company>BackslashDev LLC</Company>
-        <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+        <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
         <RepositoryUrl>https://github.com/backslashdev-llc/img-to-json</RepositoryUrl>
         <RepositoryType>git</RepositoryType>        
     </PropertyGroup>

@@ -139,7 +139,7 @@ The service will respond with an object of type `VisionResult<T>`. You can check
 
 ## License
 
-This repository and the associated NuGet packages are licensed under the terms of the GPL V3 license. Full details can be found in [the license file](https://github.com/BackslashDev-LLC/img-to-json/blob/main/LICENSE.md).
+This repository and the associated NuGet packages are licensed under the terms of the LGPL V3 license. Full details can be found in [here](https://github.com/BackslashDev-LLC/img-to-json/blob/main/COPYING) and [here](https://github.com/BackslashDev-LLC/img-to-json/blob/main/COPYING.LESSER)
 
 ## Contribution
 
