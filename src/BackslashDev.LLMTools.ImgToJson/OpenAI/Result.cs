@@ -21,12 +21,28 @@ namespace BackslashDev.LLMTools.ImgToJson.OpenAI
 
     internal class Choice
     {
-        public JsonMessage? Message { get; set; }
+        public ResultMessage? Message { get; set; }
     }
 
-    internal class JsonMessage
+    internal class ResultMessage
     {
         public string Role { get; set; } = string.Empty;
-        public string Content { get; set; } = string.Empty;
+        public string? Content { get; set; }
+        [JsonProperty("tool_calls")]
+        public List<ToolCall>? ToolCalls { get; set; }
     }
+
+    internal class ToolCall
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Type { get; set; } = "function";
+        [JsonProperty("function")]
+        public FunctionCall? FunctionCall { get; set; }
+    }
+
+    internal class FunctionCall
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Arguments { get; set; } = string.Empty;
+    } 
 }
