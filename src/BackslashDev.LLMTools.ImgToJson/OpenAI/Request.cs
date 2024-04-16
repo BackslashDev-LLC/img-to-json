@@ -8,5 +8,8 @@ namespace BackslashDev.LLMTools.ImgToJson.OpenAI
         [JsonProperty("max_tokens")]
         public int MaxTokens { get; set; }
         public string Model { get; set; } = string.Empty;
+        public List<Tool>? Tools { get; set; }
+        [JsonProperty("tool_choice")]
+        public ToolChoice? ToolChoice { get; set; }
     }
 }

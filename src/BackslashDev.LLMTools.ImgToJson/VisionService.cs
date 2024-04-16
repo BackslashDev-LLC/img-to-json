@@ -7,9 +7,9 @@ using BackslashDev.LLMTools.Interfaces.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace BackslashDev.LLMTools.ImgToJson
 {
@@ -55,15 +55,21 @@ namespace BackslashDev.LLMTools.ImgToJson
         }
 
         private async Task<VisionResult<T>> IssueRequest<T>(string imageUrl, VisionQuality quality)
-        {            
+        {
             var schema = SchemaGenerator.GenerateJsonSchema<T>();
 
             _logger.LogTrace("Generated schema {schema}", schema);
 
-            var instruction = new Message
+            var js = schema.ToJsonString();
+
+            var extractData = new Tool
             {
-                Role = "system",
-                Content = new List<MessageContent> { new TextContent($"Respond with only JSON that matches the following JSON schema: {schema}") }
+                Function = new FunctionDefinition
+                {
+                    Name = "extract_data",
+                    Description = "Extracts data from a provided image into the expected JSON schema",
+                    Parameters = JsonConvert.DeserializeObject<JObject>(js)
+                }
             };
 
             var image = new Message
@@ -75,18 +81,22 @@ namespace BackslashDev.LLMTools.ImgToJson
             var request = new Request
             {
                 MaxTokens = _options.MaxTokens,
-                Messages = new List<Message> { instruction, image },
-                Model = _options.VisionModel
+                Messages = new List<Message> { image },
+                Model = _options.VisionModel,
+                Tools = new List<Tool> { extractData },
+                ToolChoice = ToolChoice.ChooseFunction(extractData.Function.Name)
             };
 
             var client = _httpClientFactory.CreateClient("OpenAIImageClient");
-            
+
             client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_options.ApiKey}");
 
             var settings = new JsonSerializerSettings
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                Formatting = Formatting.Indented
+                Formatting = Formatting.Indented,
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                NullValueHandling = NullValueHandling.Ignore
             };
 
             var jsonPayload = JsonConvert.SerializeObject(request, settings);
@@ -108,7 +118,7 @@ namespace BackslashDev.LLMTools.ImgToJson
 
             var apiResult = JsonConvert.DeserializeObject<Result>(strResult);
 
-            if(apiResult == null || !apiResult.Choices.Any())
+            if (apiResult == null || !apiResult.Choices.Any())
             {
                 return new VisionResult<T>
                 {
@@ -117,13 +127,29 @@ namespace BackslashDev.LLMTools.ImgToJson
                 };
             }
 
-            var jsonResult = apiResult.Choices.First().Message!.Content;
+            var choice = apiResult.Choices.First();
 
-            if (jsonResult.StartsWith("```json"))
+            if (choice.Message == null || choice.Message.ToolCalls == null)
             {
-                string pattern = @"^```json\s*|\s*```$";
-                jsonResult = Regex.Replace(jsonResult, pattern, "", RegexOptions.Singleline);
+                return new VisionResult<T>
+                {
+                    Success = false,
+                    ErrorMessage = "Unexpected result from API - No tool call present. " + strResult
+                };
             }
+
+            var tool = choice.Message.ToolCalls.FirstOrDefault(c => c.FunctionCall?.Name == extractData.Function.Name);
+
+            if (tool == null || tool.FunctionCall == null)
+            {
+                return new VisionResult<T>
+                {
+                    Success = false,
+                    ErrorMessage = "Unexpected result from API - No function call present. " + strResult
+                };
+            }
+
+            var jsonResult = tool.FunctionCall.Arguments;
 
             try
             {
@@ -139,7 +165,9 @@ namespace BackslashDev.LLMTools.ImgToJson
                     };
                 }
             }
-            catch (Exception) { }
+            catch (Exception)
+            {
+            }
 
             return new VisionResult<T>
             {
